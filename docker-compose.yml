@@ -1,0 +1,77 @@
+version: '3.x'
+
+services:
+  redis:
+    image: redis:latest
+    container_name: redis_service
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    environment:
+      REDIS_PASSWORD: "${REDIS_PASSWORD}"
+    networks:
+      - app_network
+
+  postgres:
+    image: postgres:15
+    container_name: postgres_service
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${POSTGRES_DB}"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgres/data
+    networks:
+      - app_network
+
+  rabbitmq:
+    image: rabbitmq:latest
+    container_name: rabbitmq_service
+    ports:
+      - "5672:5672" 
+      - "15672:15672" 
+    environment:
+      RABBITMQ_DEFAULT_USER: "${RABBITMQ_USER}"
+      RABBITMQ_DEFAULT_PASS: "${RABBITMQ_PASS}"
+    networks:
+      - app_network
+    volumes:
+      - var/lib/rabbitmq/
+
+  react:
+    container_name: react_frontend
+    build:
+      context: ./frontend/summarise
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/summarise:/app
+      - /app/node_modules
+    networks:
+      - app_network
+
+  django:
+    container_name: django_backend
+    build:
+      context: ./backend/summarise
+    depends_on:
+      - rabbitmq
+      - redis
+      - postgres
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/summarise:/app
+    networks:
+      - app_network
+
+volumes:
+  redis_data:
+  postgres_data:
+
+networks:
+  app_network:
+    driver: bridge
