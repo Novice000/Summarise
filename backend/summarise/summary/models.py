@@ -13,7 +13,7 @@ class Chat(models.Model):
     
 class Summary(models.Model):
     user = models.ForeignKey(User, related_name="summariser", on_delete=models.CASCADE, required=True)
-    to_summarise = models.TextField()
+    to_summarise = models.CharField(max_length=101)
     summary = models.TextField()
     
     

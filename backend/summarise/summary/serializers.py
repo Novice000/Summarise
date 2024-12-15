@@ -24,5 +24,5 @@ class ChatSerializer(serializers.ModelSerializer):
 class SummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = Summary
-        fields = ["id","user", "summary"]
+        fields = ["id","user","to_summarise", "summary"]
         read_only_fields = ["id","user"]
